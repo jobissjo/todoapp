@@ -1,17 +1,22 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="card">
-    <div class="card-header">
-        <div class="card-title">
-            Task update
-        </div>
-        <div class="card-body">
-            <form method="POST">
-                {% csrf_token %}
-                {{form.as_p}}
-                <button type="submit">Confirm</button>
-            </form>
+<div class="container mt-5 pt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="glass-card p-4 animate-fade-up">
+                <h3 class="card-title fw-bold text-gradient mb-4">Update Task</h3>
+                <div class="card-body">
+                    <form method="POST" class="d-flex flex-column gap-3">
+                        {% csrf_token %}
+                        <!-- Assuming form.as_p generates p tags, we can style standard inputs globally or wrap this -->
+                        <div class="form-style-wrapper">
+                            {{form.as_p}}
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom py-2 fw-semibold">Confirm Changes</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>

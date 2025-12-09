@@ -6,3 +6,4 @@ I do not add requirements.txt and not added gitignore
 Directly used database settings not used env
 class based views naming style `class Task_list_view(ListView):`
 ugly design
+screenshot at: ./todo.jpeg  
