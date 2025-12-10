@@ -1,23 +1,51 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="container mt-5 pt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="glass-card p-4 animate-fade-up">
-                <h3 class="card-title fw-bold text-gradient mb-4">Update Task</h3>
-                <div class="card-body">
-                    <form method="POST" class="d-flex flex-column gap-3">
+<section class="d-flex align-items-center justify-content-center" style="min-height: 90vh;">
+    <div class="container animate-fade-up">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <div class="glass-card p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <h3 class="fw-bold text-gradient mb-2">Update Task</h3>
+                        <p class="text-secondary small">Modify the details of your task below.</p>
+                    </div>
+
+                    <form method="POST">
                         {% csrf_token %}
-                        <!-- Assuming form.as_p generates p tags, we can style standard inputs globally or wrap this -->
-                        <div class="form-style-wrapper">
-                            {{form.as_p}}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
                         </div>
-                        <button type="submit" class="btn btn-primary-custom py-2 fw-semibold">Confirm Changes</button>
+                        {% endif %}
+
+                        <div class="row">
+                            {% for field in form %}
+                            <div class="col-12 mb-3">
+                                <label for="{{ field.id_for_label }}"
+                                    class="form-label small text-uppercase text-secondary fw-bold ms-1">
+                                    {{ field.label }}
+                                </label>
+                                {{ field }}
+                                {% if field.errors %}
+                                <div class="text-danger small mt-1 ms-1">
+                                    {{ field.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary-custom py-3 fw-bold">Save Changes</button>
+                            <a href="/" class="btn btn-light text-secondary fw-bold py-3">Cancel</a>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
+
 {% endblock %}

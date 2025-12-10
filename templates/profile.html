@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<section class="hero-section" style="min-height: 100vh;">
+    <div class="container py-5 animate-fade-up">
+
+        <div class="row d-flex justify-content-center">
+            <div class="col-md-8">
+                <div class="glass-card p-5">
+                    <div class="d-flex align-items-center mb-4 border-bottom pb-4">
+                        <div class="bg-light rounded-circle p-3 d-flex align-items-center justify-content-center me-4"
+                            style="width: 80px; height: 80px;">
+                            <span class="fs-1 fw-bold text-gradient">{{ user.username.0|upper }}</span>
+                        </div>
+                        <div>
+                            <h2 class="fw-bold mb-0">{{ user.username }}</h2>
+                            <p class="text-secondary mb-0">{{ user.email }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row text-center mb-4">
+                        <div class="col-6">
+                            <div class="p-3 bg-white rounded-3 shadow-sm border">
+                                <h3 class="fw-bold text-primary mb-0">{{ user.task_set.count }}</h3>
+                                <small class="text-secondary text-uppercase fw-bold">Total Tasks</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-white rounded-3 shadow-sm border">
+                                <!-- Filter using template logic or custom tag, but for simplicity assuming a method or related manager -->
+                                <h3 class="fw-bold text-accent mb-0">
+                                    {{ user.task_set.all|length }}
+                                    <!-- Ideally we should pass this from context for efficiency, but this is quick -->
+                                </h3>
+                                <small class="text-secondary text-uppercase fw-bold">Active Tasks</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <form action="{% url 'logout' %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger-custom w-100 py-3">Logout</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

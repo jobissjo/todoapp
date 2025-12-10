@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<section class="hero-section d-flex align-items-center justify-content-center" style="min-height: 100vh; padding: 0;">
+    <div class="container d-flex justify-content-center animate-fade-up">
+        <div class="glass-card p-5" style="width: 100%; max-width: 500px;">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold mb-1">Create Account</h2>
+                <p class="text-secondary">Join us and start managing your tasks.</p>
+            </div>
+
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label small text-uppercase text-secondary fw-bold">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                    <div class="form-text small text-muted">{{ field.help_text|safe }}</div>
+                    {% endif %}
+                    {% if field.errors %}
+                    {% for error in field.errors %}
+                    <div class="text-danger small mt-1">
+                        {{ error }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <button type="submit" class="btn btn-primary-custom w-100 py-3 fw-bold mt-2">Sign Up</button>
+            </form>
+
+            <div class="text-center mt-4">
+                <small class="text-secondary">Already have an account? <a href="{% url 'login' %}"
+                        class="fw-bold text-accent text-decoration-none">Sign in</a></small>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,5 +1,12 @@
-from django.shortcuts import render, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.contrib.auth.models import User
+
 
 from .forms import TodoForm
 from .models import Task, Priority
@@ -7,25 +14,31 @@ from django.views.generic import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView,DeleteView
 
-class TaskListView(ListView):
+class TaskListView(LoginRequiredMixin, ListView):
+    login_url = '/login/'
     model = Task
     template_name = 'home.html'
     context_object_name = 'task1'
 
     def get_queryset(self):
-        return Task.objects.filter(is_completed=False)
-class TaskDetailView(DetailView):
+        return Task.objects.filter(user=self.request.user, is_completed=False)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['priorities'] = Priority.objects.all()
+        return context
+class TaskDetailView(LoginRequiredMixin, DetailView):
     model= Task
     template_name = 'details.html'
     context_object_name = 'task'
-class TaskUpdateView(UpdateView):
+class TaskUpdateView(LoginRequiredMixin, UpdateView):
     model = Task
     template_name = 'update.html'
     context_object_name = 'task'
-    fields = ['name', 'priority', 'task_type', 'start_date', 'end_date']
+    form_class = TodoForm
     def get_success_url(self):
         return reverse_lazy('cbvdetail', kwargs={'pk':self.object.id})
-class TaskDeleteView(DeleteView):
+class TaskDeleteView(LoginRequiredMixin, DeleteView):
     model = Task
     template_name = 'delete.html'
     context_object_name = 'task'
@@ -57,8 +70,58 @@ class TaskDeleteView(DeleteView):
         return redirect(self.success_url)
 
 # Create your views here.
+
+def register_view(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, f'Welcome, {user.username}! Your account has been created.')
+            return redirect('/')
+    else:
+        form = UserCreationForm()
+    
+    for field in form.fields.values():
+        field.widget.attrs['class'] = 'form-control custom-input'
+        
+    return render(request, 'register.html', {'form': form})
+
+def login_view(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.info(request, f"You are now logged in as {username}.")
+                return redirect('/')
+            else:
+                messages.error(request, "Invalid username or password.")
+        else:
+            messages.error(request, "Invalid username or password.")
+    else:
+        form = AuthenticationForm()
+    
+    for field in form.fields.values():
+        field.widget.attrs['class'] = 'form-control custom-input'
+
+    return render(request, 'login.html', {'form': form})
+
+def logout_view(request):
+    logout(request)
+    messages.info(request, "You have successfully logged out.")
+    return redirect('login')
+
+@login_required
+def profile_view(request):
+    return render(request, 'profile.html')
+
+@login_required
 def add(request):
-    task1 = Task.objects.filter(is_completed=False)
+    task1 = Task.objects.filter(user=request.user, is_completed=False)
     if request.method=="POST":
         name=request.POST.get('task','')
         priority_id=request.POST.get('priority','')
@@ -71,7 +134,7 @@ def add(request):
 
         if priority_id:
              priority = Priority.objects.get(id=priority_id)
-             task=Task(name=name, priority=priority, start_date=start_date, end_date=end_date, task_type=task_type)
+             task=Task(name=name, priority=priority, start_date=start_date, end_date=end_date, task_type=task_type, user=request.user)
              task.save()
 
     return render(request,'home.html', {'task1': task1, 'priorities': Priority.objects.all()})

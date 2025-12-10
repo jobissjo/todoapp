@@ -7,6 +7,10 @@ from todoapp import views
 urlpatterns = [
 
     path('',views.add,name='add'),
+    path('register/', views.register_view, name='register'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+    path('profile/', views.profile_view, name='profile'),
     path('delete/<int:taskid>/',views.delete,name='delete'),
     path('update/<int:id>/',views.update,name='update'),
     path('cbvhome/',views.TaskListView.as_view(),name='cbvhome'),
